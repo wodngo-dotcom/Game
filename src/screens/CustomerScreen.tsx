@@ -4,7 +4,7 @@ import NumberPad from '../components/NumberPad';
 import type { ShopItem } from '../data/stores';
 import { getLevelConfig } from '../data/levels';
 import { generateOrder, type GeneratedOrder } from '../logic/orderGenerator';
-import { pickRandomCustomer, type Customer } from '../data/customers';
+import { spawnCustomer, type CustomerSpawn } from '../data/customers';
 import { useGameState } from '../state/GameStateContext';
 import { playTap, playSuccess, playGentleRetry, playStar } from '../utils/sound';
 import { shuffle } from '../utils/random';
@@ -37,7 +37,8 @@ export default function CustomerScreen({
   const { addStars } = useGameState();
   const config = getLevelConfig(level);
 
-  const [customer, setCustomer] = useState<Customer>(() => pickRandomCustomer());
+  const [spawn, setSpawn] = useState<CustomerSpawn>(() => spawnCustomer());
+  const { customer, line, isVip } = spawn;
   const [order, setOrder] = useState<GeneratedOrder>(() => generateOrder(level, items));
   const [stage, setStage] = useState<Stage>('shopping');
   const [basket, setBasket] = useState<Record<string, number>>({});
@@ -56,8 +57,7 @@ export default function CustomerScreen({
   const shelfItems = useMemo(() => shuffle(items), [items]);
 
   function startNewRound() {
-    const nextCustomer = pickRandomCustomer();
-    setCustomer(nextCustomer);
+    setSpawn(spawnCustomer());
     setOrder(generateOrder(level, items));
     setBasket({});
     setMismatchHint(false);
@@ -151,7 +151,7 @@ export default function CustomerScreen({
   }
 
   function finishRound() {
-    const stars = customer.vip ? 2 : 1;
+    const stars = isVip ? 2 : 1;
     setEarnedStars(stars);
     setStage('success');
     window.setTimeout(playStar, 150);
@@ -190,23 +190,25 @@ export default function CustomerScreen({
       <div className="customer-content">
         <div className="customer-banner" key={customer.id + servedCount}>
           <span className="customer-emoji">{customer.emoji}</span>
-          <div className={`speech-bubble ${customer.vip ? 'vip' : ''}`}>
-            {customer.vip && <div className="vip-tag">✨ 특별 손님</div>}
+          <div className={`speech-bubble ${isVip ? 'vip' : ''}`}>
+            {isVip && <div className="vip-tag">✨ 특별 손님</div>}
+            <p className="customer-name">{customer.name}</p>
+            <p className="customer-quip">{line}</p>
             <div className="order-lines">
-              {order.lines.map((line) => {
-                const item = items.find((it) => it.id === line.itemId);
+              {order.lines.map((orderLine) => {
+                const item = items.find((it) => it.id === orderLine.itemId);
                 if (!item) return null;
                 return (
-                  <span className="order-chip" key={line.itemId}>
+                  <span className="order-chip" key={orderLine.itemId}>
                     {config.showOrderIcons && <span>{item.emoji}</span>}
                     <span>
-                      {item.name} {line.qty}개
+                      {item.name} {orderLine.qty}개
                     </span>
                   </span>
                 );
               })}
             </div>
-            <div className="order-please">주세요!</div>
+            <div className="order-please">{customer.closing}</div>
           </div>
         </div>
 
