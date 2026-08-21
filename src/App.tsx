@@ -13,7 +13,7 @@ type PendingNav = 'open' | 'home' | 'restock';
 const CUSTOMERS_PER_RESTOCK = 3;
 
 function GameApp() {
-  const { level } = useGameState();
+  const { level, resetProgress } = useGameState();
   const [screen, setScreen] = useState<Screen>('main');
   const [todaysItems, setTodaysItems] = useState<ShopItem[]>([]);
   // The store whose theme/items are currently "live" on screen. This only
@@ -68,6 +68,14 @@ function GameApp() {
     withStoreGate('restock');
   }
 
+  function handleReset() {
+    resetProgress();
+    setActiveStoreId(getStoreForLevel(1).id);
+    setTodaysItems([]);
+    setPendingNav(null);
+    setScreen('main');
+  }
+
   const themeStyle = {
     '--color-primary': activeStore.colors.primary,
     '--color-primary-dark': activeStore.colors.primaryDark,
@@ -82,7 +90,13 @@ function GameApp() {
         <StoreCelebrationScreen store={latestStore} onContinue={handleCelebrationContinue} />
       )}
       {screen === 'display' && (
-        <DisplayScreen items={todaysItems} level={level} onComplete={handleDisplayComplete} onHome={goHome} />
+        <DisplayScreen
+          items={todaysItems}
+          level={level}
+          onComplete={handleDisplayComplete}
+          onHome={goHome}
+          onReset={handleReset}
+        />
       )}
       {screen === 'customer' && (
         <CustomerScreen
@@ -92,9 +106,10 @@ function GameApp() {
           customersUntilRestock={CUSTOMERS_PER_RESTOCK}
           onNeedRestock={handleRestock}
           onHome={goHome}
+          onReset={handleReset}
         />
       )}
-      {screen === 'main' && <MainScreen store={activeStore} onOpenStore={openStore} />}
+      {screen === 'main' && <MainScreen store={activeStore} onOpenStore={openStore} onReset={handleReset} />}
     </div>
   );
 }

@@ -8,9 +8,10 @@ import './MainScreen.css';
 interface MainScreenProps {
   store: StoreConfig;
   onOpenStore: () => void;
+  onReset: () => void;
 }
 
-export default function MainScreen({ store, onOpenStore }: MainScreenProps) {
+export default function MainScreen({ store, onOpenStore, onReset }: MainScreenProps) {
   const { level } = useGameState();
   const [opening, setOpening] = useState(false);
 
@@ -25,7 +26,7 @@ export default function MainScreen({ store, onOpenStore }: MainScreenProps) {
 
   return (
     <div className="main-screen">
-      <TopBar />
+      <TopBar onReset={onReset} />
       <div className="main-content">
         <h2 className="store-name">{store.name}</h2>
         <div className={`storefront ${opening ? 'opening' : ''}`}>

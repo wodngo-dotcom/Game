@@ -10,6 +10,7 @@ interface GameStateContextValue {
   starsPerLevel: number;
   addStars: (n: number) => void;
   toggleSound: () => void;
+  resetProgress: () => void;
 }
 
 const GameStateContext = createContext<GameStateContextValue | null>(null);
@@ -48,6 +49,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         });
       },
       toggleSound: () => setSoundOn((v) => !v),
+      resetProgress: () => setStars(0),
     }),
     [stars, level, soundOn, starsIntoLevel],
   );

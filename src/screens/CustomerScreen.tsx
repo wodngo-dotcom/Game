@@ -17,6 +17,7 @@ interface CustomerScreenProps {
   customersUntilRestock: number;
   onNeedRestock: () => void;
   onHome: () => void;
+  onReset: () => void;
 }
 
 type Stage = 'shopping' | 'totalInput' | 'payment' | 'changeInput' | 'success';
@@ -35,6 +36,7 @@ export default function CustomerScreen({
   customersUntilRestock,
   onNeedRestock,
   onHome,
+  onReset,
 }: CustomerScreenProps) {
   const { addStars } = useGameState();
   const config = getLevelConfig(level);
@@ -187,7 +189,7 @@ export default function CustomerScreen({
 
   return (
     <div className="customer-screen">
-      <TopBar onHome={onHome} />
+      <TopBar onHome={onHome} onReset={onReset} />
 
       <div className="customer-content">
         <div className="customer-banner" key={customer.id + servedCount}>

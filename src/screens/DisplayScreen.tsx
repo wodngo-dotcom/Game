@@ -11,6 +11,7 @@ interface DisplayScreenProps {
   level: number;
   onComplete: () => void;
   onHome: () => void;
+  onReset: () => void;
 }
 
 type PopupKind = 'item' | 'bonus';
@@ -54,7 +55,7 @@ function rectOf(el: HTMLElement): Rect {
   return { left: r.left, top: r.top, width: r.width, height: r.height };
 }
 
-export default function DisplayScreen({ items, level, onComplete, onHome }: DisplayScreenProps) {
+export default function DisplayScreen({ items, level, onComplete, onHome, onReset }: DisplayScreenProps) {
   const { addStars } = useGameState();
   // 초반엔 그림+글자 동시 표시, 레벨이 오르면 이름표는 글자만 (읽기 연습 강화)
   const showIconOnLabel = level <= 2;
@@ -168,7 +169,7 @@ export default function DisplayScreen({ items, level, onComplete, onHome }: Disp
 
   return (
     <div className="display-screen">
-      <TopBar onHome={onHome} />
+      <TopBar onHome={onHome} onReset={onReset} />
       <div className="display-content">
         <h2 className="display-title">상자를 열어서 진열해볼까요?</h2>
         <p className="display-subtitle">상자를 누르면 물건이 튀어나와요. 떠 있을 때 잡아보세요!</p>
