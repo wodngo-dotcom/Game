@@ -1,5 +1,4 @@
 export type PaymentMode = 'exact' | 'generous' | 'mixed';
-export type ChangeMode = 'none' | 'numeric' | 'coins';
 
 export interface LevelConfig {
   level: number;
@@ -10,7 +9,6 @@ export interface LevelConfig {
   /** false: prices must be multiples of 10 (10원 단위만) */
   allowMixedUnits: boolean;
   paymentMode: PaymentMode;
-  changeMode: ChangeMode;
   /** low levels show icon+text for order items, higher levels show text only */
   showOrderIcons: boolean;
 }
@@ -22,7 +20,6 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     qtyRange: [1, 3],
     allowMixedUnits: false,
     paymentMode: 'exact',
-    changeMode: 'none',
     showOrderIcons: true,
   },
   {
@@ -31,7 +28,6 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     qtyRange: [1, 2],
     allowMixedUnits: false,
     paymentMode: 'generous',
-    changeMode: 'numeric',
     showOrderIcons: true,
   },
   {
@@ -40,7 +36,6 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     qtyRange: [1, 1],
     allowMixedUnits: true,
     paymentMode: 'generous',
-    changeMode: 'numeric',
     showOrderIcons: true,
   },
   {
@@ -49,7 +44,6 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     qtyRange: [1, 1],
     allowMixedUnits: true,
     paymentMode: 'generous',
-    changeMode: 'coins',
     showOrderIcons: false,
   },
   {
@@ -58,7 +52,6 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     qtyRange: [1, 1],
     allowMixedUnits: true,
     paymentMode: 'mixed',
-    changeMode: 'coins',
     showOrderIcons: false,
   },
 ];

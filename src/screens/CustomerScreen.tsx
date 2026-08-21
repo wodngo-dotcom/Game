@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import TopBar from '../components/TopBar';
-import CoinPicker from '../components/CoinPicker';
+import NumberPad from '../components/NumberPad';
 import type { ShopItem } from '../data/stores';
 import { getLevelConfig } from '../data/levels';
 import { generateOrder, type GeneratedOrder } from '../logic/orderGenerator';
-import { generateChangeOptions } from '../logic/change';
 import { pickRandomCustomer, type Customer } from '../data/customers';
 import { useGameState } from '../state/GameStateContext';
 import { playTap, playSuccess, playGentleRetry, playStar } from '../utils/sound';
@@ -19,7 +18,7 @@ interface CustomerScreenProps {
   onHome: () => void;
 }
 
-type Stage = 'shopping' | 'payment' | 'change' | 'success';
+type Stage = 'shopping' | 'totalInput' | 'payment' | 'changeInput' | 'success';
 
 function basketMatchesOrder(basket: Record<string, number>, order: GeneratedOrder): boolean {
   const orderEntries = order.lines.filter((l) => l.qty > 0);
@@ -44,10 +43,16 @@ export default function CustomerScreen({
   const [basket, setBasket] = useState<Record<string, number>>({});
   const [mismatchHint, setMismatchHint] = useState(false);
   const [servedCount, setServedCount] = useState(0);
-  const [wrongOptionValue, setWrongOptionValue] = useState<number | null>(null);
   const [earnedStars, setEarnedStars] = useState(1);
 
-  const changeOptions = useMemo(() => generateChangeOptions(order.change), [order]);
+  const [totalInput, setTotalInput] = useState('');
+  const [totalWrong, setTotalWrong] = useState(false);
+  const [totalShake, setTotalShake] = useState(false);
+
+  const [changeInput, setChangeInput] = useState('');
+  const [changeWrong, setChangeWrong] = useState(false);
+  const [changeShake, setChangeShake] = useState(false);
+
   const shelfItems = useMemo(() => shuffle(items), [items]);
 
   function startNewRound() {
@@ -56,7 +61,10 @@ export default function CustomerScreen({
     setOrder(generateOrder(level, items));
     setBasket({});
     setMismatchHint(false);
-    setWrongOptionValue(null);
+    setTotalInput('');
+    setTotalWrong(false);
+    setChangeInput('');
+    setChangeWrong(false);
     setStage('shopping');
   }
 
@@ -81,34 +89,68 @@ export default function CustomerScreen({
   function handleDoneBasket() {
     if (basketMatchesOrder(basket, order)) {
       playSuccess();
-      setStage('payment');
+      setTotalInput('');
+      setTotalWrong(false);
+      setStage('totalInput');
     } else {
       playGentleRetry();
       setMismatchHint(true);
     }
   }
 
-  function goToChangeOrSuccess() {
-    if (order.change === 0) {
-      finishRound(false);
-    } else {
-      setStage('change');
-    }
+  function handleTotalInputChange(next: string) {
+    setTotalWrong(false);
+    setTotalInput(next);
   }
 
-  function handleNumericOption(value: number) {
-    if (value === order.change) {
+  function handleTotalConfirm() {
+    if (totalInput === '') return;
+    if (Number(totalInput) === order.totalPrice) {
       playSuccess();
-      finishRound(false);
+      setStage('payment');
     } else {
       playGentleRetry();
-      setWrongOptionValue(value);
-      window.setTimeout(() => setWrongOptionValue(null), 400);
+      setTotalWrong(true);
+      setTotalShake(true);
+      window.setTimeout(() => {
+        setTotalShake(false);
+        setTotalInput('');
+      }, 500);
     }
   }
 
-  function finishRound(fromCoins: boolean) {
-    void fromCoins;
+  function goToChangeOrSuccess() {
+    if (order.change === 0) {
+      finishRound();
+    } else {
+      setChangeInput('');
+      setChangeWrong(false);
+      setStage('changeInput');
+    }
+  }
+
+  function handleChangeInputChange(next: string) {
+    setChangeWrong(false);
+    setChangeInput(next);
+  }
+
+  function handleChangeConfirm() {
+    if (changeInput === '') return;
+    if (Number(changeInput) === order.change) {
+      playSuccess();
+      finishRound();
+    } else {
+      playGentleRetry();
+      setChangeWrong(true);
+      setChangeShake(true);
+      window.setTimeout(() => {
+        setChangeShake(false);
+        setChangeInput('');
+      }, 500);
+    }
+  }
+
+  function finishRound() {
     const stars = customer.vip ? 2 : 1;
     setEarnedStars(stars);
     setStage('success');
@@ -140,11 +182,6 @@ export default function CustomerScreen({
       startNewRound();
     }
   }
-
-  const basketTotal = Object.entries(basket).reduce((sum, [id, qty]) => {
-    const item = items.find((it) => it.id === id);
-    return sum + (item ? item.price * qty : 0);
-  }, 0);
 
   return (
     <div className="customer-screen">
@@ -200,12 +237,38 @@ export default function CustomerScreen({
                   );
                 })}
               </div>
-              <p className="basket-total">총 {basketTotal}원</p>
               {mismatchHint && <p className="hint-text">다시 한번 볼까요? 손님이 부탁한 걸 확인해봐요 🙂</p>}
               <button className="big-button" onClick={handleDoneBasket}>
                 다 담았어요!
               </button>
             </div>
+          </div>
+        )}
+
+        {stage === 'totalInput' && (
+          <div className="stage-panel anim-pop">
+            <p className="calc-title">물건 값을 다 더하면 얼마일까요?</p>
+            <div className="calc-basket-list">
+              {order.lines.map((line) => {
+                const item = items.find((it) => it.id === line.itemId);
+                if (!item) return null;
+                return (
+                  <div className="calc-basket-row" key={line.itemId}>
+                    <span>
+                      {item.emoji} {item.name}
+                    </span>
+                    <span>
+                      {item.price}원 x {line.qty}개
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className={`answer-display ${totalShake ? 'anim-shake' : ''}`}>
+              {totalInput ? `${totalInput}원` : <span className="answer-placeholder">숫자를 눌러보세요</span>}
+            </div>
+            {totalWrong && <p className="hint-text">다시 한번 볼까요? 천천히 더해봐요 🙂</p>}
+            <NumberPad value={totalInput} onChange={handleTotalInputChange} onConfirm={handleTotalConfirm} />
           </div>
         )}
 
@@ -223,26 +286,21 @@ export default function CustomerScreen({
           </div>
         )}
 
-        {stage === 'change' && config.changeMode === 'numeric' && (
+        {stage === 'changeInput' && (
           <div className="stage-panel anim-pop">
-            <p className="change-question">거스름돈은 얼마일까요?</p>
-            <div className="numeric-options">
-              {changeOptions.map((value) => (
-                <button
-                  key={value}
-                  className={`big-button numeric-option ${wrongOptionValue === value ? 'anim-shake' : ''}`}
-                  onClick={() => handleNumericOption(value)}
-                >
-                  {value}원
-                </button>
-              ))}
+            <p className="calc-title">거스름돈은 얼마일까요?</p>
+            <div className="calc-formula">
+              <span>{order.payment}원</span>
+              <span className="calc-op">−</span>
+              <span>{order.totalPrice}원</span>
+              <span className="calc-op">=</span>
+              <span className="calc-question-mark">?</span>
             </div>
-          </div>
-        )}
-
-        {stage === 'change' && config.changeMode === 'coins' && (
-          <div className="stage-panel anim-pop">
-            <CoinPicker target={order.change} onCorrect={() => finishRound(true)} />
+            <div className={`answer-display ${changeShake ? 'anim-shake' : ''}`}>
+              {changeInput ? `${changeInput}원` : <span className="answer-placeholder">숫자를 눌러보세요</span>}
+            </div>
+            {changeWrong && <p className="hint-text">다시 한번 볼까요? 천천히 빼 봐요 🙂</p>}
+            <NumberPad value={changeInput} onChange={handleChangeInputChange} onConfirm={handleChangeConfirm} />
           </div>
         )}
 
