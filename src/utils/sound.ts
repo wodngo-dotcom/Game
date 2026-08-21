@@ -86,6 +86,14 @@ export function playDoorOpen() {
   });
 }
 
+export function playPop() {
+  // The bright "짜잔!" chirp when a box pops open.
+  run((audio) => {
+    playTone(audio, { freq: 660, start: 0, duration: 0.1, type: 'triangle', gain: 0.12 });
+    playTone(audio, { freq: 880, start: 0.07, duration: 0.18, type: 'triangle', gain: 0.13 });
+  });
+}
+
 export function playCoin() {
   run((audio) => playTone(audio, { freq: 988, start: 0, duration: 0.12, type: 'square', gain: 0.06 }));
 }
