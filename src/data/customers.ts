@@ -8,7 +8,8 @@ export interface Customer {
   closing: string;
 }
 
-export const CUSTOMERS: Customer[] = [
+// 어느 가게에서나 등장하는 공통 손님
+export const COMMON_CUSTOMERS: Customer[] = [
   {
     id: 'hungry-dog',
     name: '배고픈 강아지',
@@ -81,6 +82,38 @@ export const CUSTOMERS: Customer[] = [
   },
 ];
 
+// 문방구에서만 등장 — 대사가 학용품을 직접 언급하므로 이 가게 전용으로 둔다.
+export const STATIONERY_CUSTOMERS: Customer[] = [
+  {
+    id: 'rushing-student',
+    name: '급한 학생',
+    emoji: '🏃',
+    lines: [
+      '헉헉… 연필이 딱 부러졌어요!',
+      '큰일났어요! 지우개를 깜빡했어요!',
+      '선생님이 기다리셔서 빨리 사야 해요!',
+      '숙제 끝내려면 이게 꼭 필요해요!',
+      '헉… 학교 종 치기 전에 가야 해요!',
+      '공책이 다 떨어졌어요! 얼른요!',
+    ],
+    closing: '빨리 주세요, 학교 늦겠어요!',
+  },
+  {
+    id: 'homework-kid',
+    name: '숙제하던 학생',
+    emoji: '🧑‍🎓',
+    lines: [
+      '숙제하다가 뛰쳐나왔어요! 헉헉!',
+      '그림 숙제에 크레파스가 모자라요!',
+      '가위가 없어서 못 오리고 있었어요!',
+      '엄마가 빨리 오라고 하셨어요!',
+      '공책 한 장도 안 남았어요, 큰일이에요!',
+      '숙제 마감이 코앞이에요! 도와주세요!',
+    ],
+    closing: '얼른 주세요, 숙제해야 해요!',
+  },
+];
+
 const VIP_CHANCE = 0.12;
 
 export interface CustomerSpawn {
@@ -89,9 +122,9 @@ export interface CustomerSpawn {
   isVip: boolean;
 }
 
-/** Picks a random customer, one of their personality lines, and whether this visit is a VIP occasion. */
-export function spawnCustomer(): CustomerSpawn {
-  const customer = CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)];
+/** Picks a random customer from the given pool, one of their lines, and whether this visit is a VIP occasion. */
+export function spawnCustomer(pool: Customer[]): CustomerSpawn {
+  const customer = pool[Math.floor(Math.random() * pool.length)];
   const line = customer.lines[Math.floor(Math.random() * customer.lines.length)];
   const isVip = Math.random() < VIP_CHANCE;
   return { customer, line, isVip };

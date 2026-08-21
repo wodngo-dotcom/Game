@@ -1,4 +1,4 @@
-import type { ShopItem } from '../data/stores';
+import type { ShopItem, StoreConfig } from '../data/stores';
 import { getLevelConfig, type PaymentMode } from '../data/levels';
 import { randInt, pickDistinctRandom } from '../utils/random';
 
@@ -30,13 +30,19 @@ function generatePayment(total: number, mode: PaymentMode): number {
 }
 
 /** Generates one customer order using the shop's currently stocked items. */
-export function generateOrder(level: number, availableItems: ShopItem[]): GeneratedOrder {
+export function generateOrder(level: number, availableItems: ShopItem[], store: StoreConfig): GeneratedOrder {
   const config = getLevelConfig(level);
 
+  // A newly-unlocked store always eases in with round prices first, even if the
+  // player's overall level would otherwise already allow mixed-unit prices —
+  // "처음엔 딱 떨어지는 가격 위주, 이후 애매한 금액도 섞임" resets per store.
+  const isStoreFirstLevel = level === store.unlockLevel;
+  const allowMixedUnits = config.allowMixedUnits && !isStoreFirstLevel;
+
   let pool = availableItems;
-  if (!config.allowMixedUnits) {
-    const tensOnly = availableItems.filter((item) => item.price % 10 === 0);
-    if (tensOnly.length > 0) pool = tensOnly;
+  if (!allowMixedUnits) {
+    const roundOnly = availableItems.filter((item) => item.price % store.roundingUnit === 0);
+    if (roundOnly.length > 0) pool = roundOnly;
   }
 
   const wantedDistinct = randInt(config.itemCountRange[0], config.itemCountRange[1]);

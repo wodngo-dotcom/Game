@@ -1,12 +1,14 @@
 import { useState, type CSSProperties } from 'react';
 import { GameStateProvider, useGameState } from './state/GameStateContext';
-import { getStoreForLevel, type ShopItem } from './data/stores';
+import { getStoreForLevel, STORES, type ShopItem } from './data/stores';
 import { pickTodaysItems } from './logic/inventory';
 import MainScreen from './screens/MainScreen';
 import DisplayScreen from './screens/DisplayScreen';
 import CustomerScreen from './screens/CustomerScreen';
+import StoreCelebrationScreen from './screens/StoreCelebrationScreen';
 
-type Screen = 'main' | 'display' | 'customer';
+type Screen = 'main' | 'display' | 'customer' | 'storeCelebration';
+type PendingNav = 'open' | 'home' | 'restock';
 
 const CUSTOMERS_PER_RESTOCK = 3;
 
@@ -14,15 +16,48 @@ function GameApp() {
   const { level } = useGameState();
   const [screen, setScreen] = useState<Screen>('main');
   const [todaysItems, setTodaysItems] = useState<ShopItem[]>([]);
-  const store = getStoreForLevel(level);
+  // The store whose theme/items are currently "live" on screen. This only
+  // advances once the player has seen the new-store celebration, so a
+  // mid-session level-up never yanks the colors/items out from under them.
+  const [activeStoreId, setActiveStoreId] = useState(() => getStoreForLevel(level).id);
+
+  const activeStore = STORES.find((s) => s.id === activeStoreId) ?? STORES[0];
+  const latestStore = getStoreForLevel(level);
+  const hasNewStore = latestStore.id !== activeStoreId;
+
+  function runNav(nav: PendingNav, storeToUse = activeStore) {
+    if (nav === 'home') {
+      setScreen('main');
+      return;
+    }
+    setTodaysItems(pickTodaysItems(storeToUse, level));
+    setScreen('display');
+  }
+
+  const [pendingNav, setPendingNav] = useState<PendingNav | null>(null);
+
+  function withStoreGate(nav: PendingNav) {
+    if (hasNewStore) {
+      setPendingNav(nav);
+      setScreen('storeCelebration');
+    } else {
+      runNav(nav);
+    }
+  }
+
+  function handleCelebrationContinue() {
+    setActiveStoreId(latestStore.id);
+    const nav = pendingNav;
+    setPendingNav(null);
+    if (nav) runNav(nav, latestStore);
+  }
 
   function goHome() {
-    setScreen('main');
+    withStoreGate('home');
   }
 
   function openStore() {
-    setTodaysItems(pickTodaysItems(store, level));
-    setScreen('display');
+    withStoreGate('open');
   }
 
   function handleDisplayComplete() {
@@ -30,20 +65,22 @@ function GameApp() {
   }
 
   function handleRestock() {
-    setTodaysItems(pickTodaysItems(store, level));
-    setScreen('display');
+    withStoreGate('restock');
   }
 
   const themeStyle = {
-    '--color-primary': store.colors.primary,
-    '--color-primary-dark': store.colors.primaryDark,
-    '--color-accent': store.colors.accent,
-    '--color-bg': store.colors.background,
-    '--color-bg-soft': store.colors.backgroundSoft,
+    '--color-primary': activeStore.colors.primary,
+    '--color-primary-dark': activeStore.colors.primaryDark,
+    '--color-accent': activeStore.colors.accent,
+    '--color-bg': activeStore.colors.background,
+    '--color-bg-soft': activeStore.colors.backgroundSoft,
   } as CSSProperties;
 
   return (
     <div className="store-theme" style={themeStyle}>
+      {screen === 'storeCelebration' && (
+        <StoreCelebrationScreen store={latestStore} onContinue={handleCelebrationContinue} />
+      )}
       {screen === 'display' && (
         <DisplayScreen items={todaysItems} level={level} onComplete={handleDisplayComplete} onHome={goHome} />
       )}
@@ -51,12 +88,13 @@ function GameApp() {
         <CustomerScreen
           items={todaysItems}
           level={level}
+          store={activeStore}
           customersUntilRestock={CUSTOMERS_PER_RESTOCK}
           onNeedRestock={handleRestock}
           onHome={goHome}
         />
       )}
-      {screen === 'main' && <MainScreen store={store} onOpenStore={openStore} />}
+      {screen === 'main' && <MainScreen store={activeStore} onOpenStore={openStore} />}
     </div>
   );
 }

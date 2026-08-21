@@ -1,9 +1,12 @@
+import type { Customer } from './customers';
+import { COMMON_CUSTOMERS, STATIONERY_CUSTOMERS } from './customers';
+
 export interface ShopItem {
   id: string;
   name: string;
   emoji: string;
   price: number;
-  category: 'fruit' | 'vegetable';
+  category: string;
 }
 
 export interface StoreConfig {
@@ -11,6 +14,9 @@ export interface StoreConfig {
   name: string;
   /** unlocks when the player's level is >= this value */
   unlockLevel: number;
+  /** smallest price increment considered "round" for this store's currency scale
+   *  (10원 for a 1~100원 store, 100원 for a 100~1000원 store, etc.) */
+  roundingUnit: number;
   colors: {
     primary: string;
     primaryDark: string;
@@ -19,6 +25,7 @@ export interface StoreConfig {
     backgroundSoft: string;
   };
   items: ShopItem[];
+  customers: Customer[];
 }
 
 // 과일·채소가게 (1차 구현 - 완성도 있게)
@@ -26,6 +33,7 @@ export const FRUIT_VEGGIE_STORE: StoreConfig = {
   id: 'fruit-veggie',
   name: '과일·채소가게',
   unlockLevel: 1,
+  roundingUnit: 10,
   colors: {
     primary: '#4caf50',
     primaryDark: '#2e7d32',
@@ -45,11 +53,36 @@ export const FRUIT_VEGGIE_STORE: StoreConfig = {
     { id: 'tomato', name: '토마토', emoji: '🍅', price: 35, category: 'vegetable' },
     { id: 'corn', name: '옥수수', emoji: '🌽', price: 45, category: 'vegetable' },
   ],
+  customers: COMMON_CUSTOMERS,
 };
 
-// 이후 확장: 문방구, 분식집 등. 레벨이 오르면 STORES 배열에 추가하고
-// unlockLevel 만 지정하면 getStoreForLevel 이 자동으로 전환해준다.
-export const STORES: StoreConfig[] = [FRUIT_VEGGIE_STORE];
+// 문방구 (레벨 3부터 전환) — 가격 단위가 100원~1000원으로 한 자리 올라가면서
+// 화폐 감각(동전 → 지폐)이 자연스럽게 확장되도록 설계.
+export const STATIONERY_STORE: StoreConfig = {
+  id: 'stationery',
+  name: '문방구',
+  unlockLevel: 3,
+  roundingUnit: 100,
+  colors: {
+    primary: '#3f7fd6',
+    primaryDark: '#2451a0',
+    accent: '#ff7a59',
+    background: '#eef4ff',
+    backgroundSoft: '#e2ecff',
+  },
+  items: [
+    { id: 'pencil', name: '연필', emoji: '✏️', price: 100, category: 'writing' },
+    { id: 'eraser', name: '지우개', emoji: '🧽', price: 250, category: 'writing' },
+    { id: 'notebook', name: '공책', emoji: '📓', price: 500, category: 'paper' },
+    { id: 'crayon', name: '크레파스', emoji: '🖍️', price: 850, category: 'craft' },
+    { id: 'scissors', name: '가위', emoji: '✂️', price: 700, category: 'craft' },
+  ],
+  customers: [...COMMON_CUSTOMERS, ...STATIONERY_CUSTOMERS],
+};
+
+// 이후 확장: 분식집 등. STORES 배열에 추가하고 unlockLevel만 지정하면
+// getStoreForLevel이 자동으로 전환해준다.
+export const STORES: StoreConfig[] = [FRUIT_VEGGIE_STORE, STATIONERY_STORE];
 
 export function getStoreForLevel(level: number): StoreConfig {
   let chosen = STORES[0];

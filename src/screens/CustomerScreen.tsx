@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import TopBar from '../components/TopBar';
 import NumberPad from '../components/NumberPad';
-import type { ShopItem } from '../data/stores';
+import type { ShopItem, StoreConfig } from '../data/stores';
 import { getLevelConfig } from '../data/levels';
 import { generateOrder, type GeneratedOrder } from '../logic/orderGenerator';
 import { spawnCustomer, type CustomerSpawn } from '../data/customers';
@@ -13,6 +13,7 @@ import './CustomerScreen.css';
 interface CustomerScreenProps {
   items: ShopItem[];
   level: number;
+  store: StoreConfig;
   customersUntilRestock: number;
   onNeedRestock: () => void;
   onHome: () => void;
@@ -30,6 +31,7 @@ function basketMatchesOrder(basket: Record<string, number>, order: GeneratedOrde
 export default function CustomerScreen({
   items,
   level,
+  store,
   customersUntilRestock,
   onNeedRestock,
   onHome,
@@ -37,9 +39,9 @@ export default function CustomerScreen({
   const { addStars } = useGameState();
   const config = getLevelConfig(level);
 
-  const [spawn, setSpawn] = useState<CustomerSpawn>(() => spawnCustomer());
+  const [spawn, setSpawn] = useState<CustomerSpawn>(() => spawnCustomer(store.customers));
   const { customer, line, isVip } = spawn;
-  const [order, setOrder] = useState<GeneratedOrder>(() => generateOrder(level, items));
+  const [order, setOrder] = useState<GeneratedOrder>(() => generateOrder(level, items, store));
   const [stage, setStage] = useState<Stage>('shopping');
   const [basket, setBasket] = useState<Record<string, number>>({});
   const [mismatchHint, setMismatchHint] = useState(false);
@@ -57,8 +59,8 @@ export default function CustomerScreen({
   const shelfItems = useMemo(() => shuffle(items), [items]);
 
   function startNewRound() {
-    setSpawn(spawnCustomer());
-    setOrder(generateOrder(level, items));
+    setSpawn(spawnCustomer(store.customers));
+    setOrder(generateOrder(level, items, store));
     setBasket({});
     setMismatchHint(false);
     setTotalInput('');
