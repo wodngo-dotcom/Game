@@ -1,0 +1,231 @@
+:root {
+  --color-primary: #4caf50;
+  --color-primary-dark: #2e7d32;
+  --color-accent: #ff9800;
+  --color-bg: #fff8e7;
+  --color-bg-soft: #f1f9ee;
+  --color-text: #4a3f35;
+  --color-card: #ffffff;
+  --color-danger-soft: #ffb4a2;
+
+  --radius-lg: 28px;
+  --radius-md: 20px;
+  --radius-sm: 14px;
+
+  --shadow-soft: 0 6px 0 rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.08);
+
+  --font-display: 'Jua', 'Gowun Dodum', system-ui, sans-serif;
+  --font-body: 'Gowun Dodum', system-ui, -apple-system, sans-serif;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-bg);
+  transition: background 0.5s ease;
+}
+
+.store-theme {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100dvh;
+  background: var(--color-bg);
+  transition: background 0.5s ease;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  margin: 0;
+  font-weight: normal;
+}
+
+p {
+  margin: 0;
+}
+
+.big-button {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 4vw, 1.6rem);
+  padding: 1rem 2rem;
+  border-radius: var(--radius-lg);
+  background: var(--color-accent);
+  color: #ffffff;
+  box-shadow: var(--shadow-soft);
+  min-height: 64px;
+  min-width: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  user-select: none;
+}
+
+.big-button:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.big-button.secondary {
+  background: var(--color-primary);
+}
+
+.big-button.ghost {
+  background: var(--color-card);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
+}
+
+.big-button:disabled {
+  opacity: 0.45;
+  transform: none;
+  box-shadow: var(--shadow-card);
+}
+
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px) rotate(-2deg);
+  }
+  40% {
+    transform: translateX(8px) rotate(2deg);
+  }
+  60% {
+    transform: translateX(-6px) rotate(-1deg);
+  }
+  80% {
+    transform: translateX(6px) rotate(1deg);
+  }
+}
+
+@keyframes sparkle-pop {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  40% {
+    transform: scale(1.18);
+    filter: brightness(1.4);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+@keyframes float-away {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-60px) scale(0.7);
+    opacity: 0;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes gentle-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(3deg);
+  }
+}
+
+.anim-shake {
+  animation: shake 0.4s ease;
+}
+
+.anim-pop {
+  animation: pop-in 0.35s ease;
+}
+
+.anim-sparkle {
+  animation: sparkle-pop 0.5s ease;
+}
+
+.anim-bounce-in {
+  animation: bounce-in 0.4s ease;
+}

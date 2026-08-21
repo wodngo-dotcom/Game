@@ -1,0 +1,50 @@
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(10px, env(safe-area-inset-top)) 14px 10px;
+  gap: 10px;
+  font-family: var(--font-display);
+}
+
+.top-bar-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-card);
+  border-radius: 999px;
+  padding: 8px 16px;
+  box-shadow: var(--shadow-card);
+  font-size: 1.15rem;
+  min-height: 44px;
+}
+
+.stars-pill {
+  color: #e08a00;
+}
+
+.level-pill {
+  color: var(--color-primary-dark);
+}
+
+.top-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-icon-btn {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  background: var(--color-card);
+  box-shadow: var(--shadow-card);
+  font-size: 1.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.top-bar-icon-btn:active {
+  transform: scale(0.92);
+}
