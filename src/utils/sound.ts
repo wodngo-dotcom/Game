@@ -94,8 +94,44 @@ export function playPop() {
   });
 }
 
-export function playCoin() {
-  run((audio) => playTone(audio, { freq: 988, start: 0, duration: 0.12, type: 'square', gain: 0.06 }));
+export function playButtonPress() {
+  // Immediate soft "thock" the instant a big button is tapped, ahead of
+  // whatever longer melody follows (door opening, etc).
+  run((audio) => playTone(audio, { freq: 300, start: 0, duration: 0.07, type: 'sine', gain: 0.09 }));
+}
+
+export function playDoorbell() {
+  // A little two-note "ding-dong" when a new customer's order appears.
+  run((audio) => {
+    playTone(audio, { freq: 784, start: 0, duration: 0.16, type: 'sine', gain: 0.1 });
+    playTone(audio, { freq: 587.33, start: 0.14, duration: 0.22, type: 'sine', gain: 0.1 });
+  });
+}
+
+export function playCatchSparkle() {
+  // A quick bright sparkle the instant a floating item/bonus is tapped —
+  // distinct from playSuccess, which plays once it actually lands.
+  run((audio) => {
+    playTone(audio, { freq: 1046.5, start: 0, duration: 0.08, type: 'triangle', gain: 0.1 });
+    playTone(audio, { freq: 1318.5, start: 0.05, duration: 0.1, type: 'triangle', gain: 0.09 });
+  });
+}
+
+export function playCashRegister() {
+  // A little "cha-ching" when the receipt (total/payment) is revealed.
+  run((audio) => {
+    playTone(audio, { freq: 440, start: 0, duration: 0.06, type: 'square', gain: 0.05 });
+    playTone(audio, { freq: 880, start: 0.05, duration: 0.16, type: 'square', gain: 0.07 });
+  });
+}
+
+export function playVipFanfare() {
+  // A little extra sparkle when a VIP customer shows up.
+  run((audio) => {
+    [880, 1108.7, 1318.5].forEach((freq, i) => {
+      playTone(audio, { freq, start: i * 0.09, duration: 0.16, type: 'triangle', gain: 0.11 });
+    });
+  });
 }
 
 export function playStar() {

@@ -246,6 +246,12 @@
   color: var(--color-accent);
 }
 
+.calc-formula-term {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .calc-question-mark {
   color: var(--color-accent);
   font-size: 1.3em;

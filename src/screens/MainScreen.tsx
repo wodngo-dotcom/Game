@@ -2,7 +2,7 @@ import { useState } from 'react';
 import TopBar from '../components/TopBar';
 import { useGameState } from '../state/GameStateContext';
 import type { StoreConfig } from '../data/stores';
-import { playDoorOpen } from '../utils/sound';
+import { playDoorOpen, playButtonPress } from '../utils/sound';
 import './MainScreen.css';
 
 interface MainScreenProps {
@@ -18,7 +18,8 @@ export default function MainScreen({ store, onOpenStore, onReset }: MainScreenPr
   function handleOpen() {
     if (opening) return;
     setOpening(true);
-    playDoorOpen();
+    playButtonPress();
+    window.setTimeout(playDoorOpen, 90);
     window.setTimeout(() => {
       onOpenStore();
     }, 650);

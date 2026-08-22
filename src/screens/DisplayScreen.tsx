@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import TopBar from '../components/TopBar';
 import type { ShopItem } from '../data/stores';
 import { shuffle, randInt } from '../utils/random';
-import { playPop, playSuccess, playGentleRetry, playStar } from '../utils/sound';
+import { playPop, playSuccess, playGentleRetry, playStar, playCatchSparkle } from '../utils/sound';
 import { useGameState } from '../state/GameStateContext';
 import './DisplayScreen.css';
 
@@ -135,7 +135,8 @@ export default function DisplayScreen({ items, level, onComplete, onHome, onRese
     clearTimer();
 
     if (popupKind === 'bonus') {
-      playStar();
+      playCatchSparkle();
+      window.setTimeout(playStar, 120);
       addStars(1);
       setPopupPhase('caught');
       setBonusBurst(true);
@@ -143,7 +144,7 @@ export default function DisplayScreen({ items, level, onComplete, onHome, onRese
       return;
     }
 
-    playSuccess();
+    playCatchSparkle();
     setPopupPhase('caught');
     const popupEl = popupRef.current;
     const slotEl = slotRefs.current[item.id];
@@ -154,6 +155,7 @@ export default function DisplayScreen({ items, level, onComplete, onHome, onRese
       });
     }
     timerRef.current = window.setTimeout(() => {
+      playSuccess();
       setPlacedIds((prev) => {
         const next = new Set(prev);
         next.add(item.id);

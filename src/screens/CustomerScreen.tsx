@@ -6,7 +6,15 @@ import { getLevelConfig } from '../data/levels';
 import { generateOrder, type GeneratedOrder } from '../logic/orderGenerator';
 import { spawnCustomer, type CustomerSpawn } from '../data/customers';
 import { useGameState } from '../state/GameStateContext';
-import { playTap, playSuccess, playGentleRetry, playStar } from '../utils/sound';
+import {
+  playTap,
+  playSuccess,
+  playGentleRetry,
+  playStar,
+  playDoorbell,
+  playVipFanfare,
+  playCashRegister,
+} from '../utils/sound';
 import { shuffle } from '../utils/random';
 import './CustomerScreen.css';
 
@@ -60,6 +68,19 @@ export default function CustomerScreen({
 
   const shelfItems = useMemo(() => shuffle(items), [items]);
 
+  const totalAddends = order.lines.flatMap((line) => {
+    const item = items.find((it) => it.id === line.itemId);
+    return item ? Array<number>(line.qty).fill(item.price) : [];
+  });
+
+  useEffect(() => {
+    playDoorbell();
+    if (isVip) {
+      window.setTimeout(playVipFanfare, 220);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customer.id, servedCount]);
+
   function startNewRound() {
     setSpawn(spawnCustomer(store.customers));
     setOrder(generateOrder(level, items, store));
@@ -111,6 +132,7 @@ export default function CustomerScreen({
     if (totalInput === '') return;
     if (Number(totalInput) === order.totalPrice) {
       playSuccess();
+      window.setTimeout(playCashRegister, 450);
       setStage('payment');
     } else {
       playGentleRetry();
@@ -263,12 +285,20 @@ export default function CustomerScreen({
                     <span>
                       {item.emoji} {item.name}
                     </span>
-                    <span>
-                      {item.price}원 x {line.qty}개
-                    </span>
+                    <span>{line.qty}개</span>
                   </div>
                 );
               })}
+            </div>
+            <div className="calc-formula">
+              {totalAddends.map((price, i) => (
+                <span key={i} className="calc-formula-term">
+                  {i > 0 && <span className="calc-op">+</span>}
+                  {price}원
+                </span>
+              ))}
+              <span className="calc-op">=</span>
+              <span className="calc-question-mark">?</span>
             </div>
             <div className={`answer-display ${totalShake ? 'anim-shake' : ''}`}>
               {totalInput ? `${totalInput}원` : <span className="answer-placeholder">숫자를 눌러보세요</span>}

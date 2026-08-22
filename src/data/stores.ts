@@ -29,11 +29,13 @@ export interface StoreConfig {
 }
 
 // 과일·채소가게 (1차 구현 - 완성도 있게)
+// 가격은 1~9원 범위로 뒀다 — 아직 두 자리 덧셈(예: 50+50)이 버거운 나이라
+// 받아올림 없는 한 자리 숫자 덧셈으로 계산 연습이 이어지도록 한 것.
 export const FRUIT_VEGGIE_STORE: StoreConfig = {
   id: 'fruit-veggie',
   name: '과일·채소가게',
   unlockLevel: 1,
-  roundingUnit: 10,
+  roundingUnit: 1,
   colors: {
     primary: '#4caf50',
     primaryDark: '#2e7d32',
@@ -42,16 +44,16 @@ export const FRUIT_VEGGIE_STORE: StoreConfig = {
     backgroundSoft: '#f1f9ee',
   },
   items: [
-    { id: 'apple', name: '사과', emoji: '🍎', price: 30, category: 'fruit' },
-    { id: 'banana', name: '바나나', emoji: '🍌', price: 40, category: 'fruit' },
-    { id: 'strawberry', name: '딸기', emoji: '🍓', price: 20, category: 'fruit' },
-    { id: 'grape', name: '포도', emoji: '🍇', price: 50, category: 'fruit' },
-    { id: 'watermelon', name: '수박', emoji: '🍉', price: 90, category: 'fruit' },
-    { id: 'carrot', name: '당근', emoji: '🥕', price: 15, category: 'vegetable' },
-    { id: 'cucumber', name: '오이', emoji: '🥒', price: 25, category: 'vegetable' },
-    { id: 'potato', name: '감자', emoji: '🥔', price: 10, category: 'vegetable' },
-    { id: 'tomato', name: '토마토', emoji: '🍅', price: 35, category: 'vegetable' },
-    { id: 'corn', name: '옥수수', emoji: '🌽', price: 45, category: 'vegetable' },
+    { id: 'potato', name: '감자', emoji: '🥔', price: 1, category: 'vegetable' },
+    { id: 'carrot', name: '당근', emoji: '🥕', price: 2, category: 'vegetable' },
+    { id: 'cucumber', name: '오이', emoji: '🥒', price: 3, category: 'vegetable' },
+    { id: 'strawberry', name: '딸기', emoji: '🍓', price: 4, category: 'fruit' },
+    { id: 'tomato', name: '토마토', emoji: '🍅', price: 5, category: 'vegetable' },
+    { id: 'apple', name: '사과', emoji: '🍎', price: 6, category: 'fruit' },
+    { id: 'corn', name: '옥수수', emoji: '🌽', price: 7, category: 'vegetable' },
+    { id: 'banana', name: '바나나', emoji: '🍌', price: 8, category: 'fruit' },
+    { id: 'grape', name: '포도', emoji: '🍇', price: 9, category: 'fruit' },
+    { id: 'watermelon', name: '수박', emoji: '🍉', price: 9, category: 'fruit' },
   ],
   customers: COMMON_CUSTOMERS,
 };
